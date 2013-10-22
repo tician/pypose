@@ -48,6 +48,7 @@ class Driver:
         for val in params:
             self.ser.write(chr(val))
         self.ser.write(chr(checksum))
+        time.sleep(0.05);
         return self.getPacket(0)
 
     def setReg(self, index, regstart, values):
@@ -59,7 +60,6 @@ class Driver:
     def getPacket(self, mode, id=-1, leng=-1, error=-1, params = None):
         """ Read a return packet, iterative attempt """
         # need a positive byte
-        time.sleep(0.005);
         d = self.ser.read()
         if d == '': 
             print "*** Fail Read ***"
