@@ -127,12 +127,13 @@ class project:
         print>>posefile, "#ifndef " + self.name.upper() + "_POSES"
         print>>posefile, "#define " + self.name.upper() + "_POSES"
         print>>posefile, ""
-        print>>posefile, "#include <avr/pgmspace.h>"
+        print>>posefile, "//#include <avr/pgmspace.h>"
+        print>>posefile, "#include <CM9_BC.h>"
         print>>posefile, ""
         for p in self.poses.keys():
             if p.startswith("ik_"):
                 continue
-            print>>posefile, "PROGMEM prog_uint16_t " + p + "[] = {" + str(self.count) + ",",
+            print>>posefile, "bc_pose_t __FLASH__ " + p + "[] = {" + str(self.count) + ",",
             p = self.poses[p]
             for x in p[0:-1]:
                 print>>posefile, str(x) + ",",
@@ -140,7 +141,7 @@ class project:
             #print>>posefile, ""
         print>>posefile, ""
         for s in self.sequences.keys():
-            print>>posefile, "PROGMEM transition_t " + s + "[] = {{0," + str(len(self.sequences[s])) + "}",
+            print>>posefile, "bc_seq_t __FLASH__ " + s + "[] = {{0," + str(len(self.sequences[s])) + "}",
             s = self.sequences[s]
             for t in s:
                 print>>posefile, ",{" + t[0:t.find("|")] + "," + t[t.find("|")+1:] + "}",            
