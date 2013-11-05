@@ -19,7 +19,6 @@
   Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 """
 
-import os
 
 ###############################################################################
 # Pose class is a list, first element is name, rest are servo positions. 
@@ -123,7 +122,8 @@ class project:
 
     ###########################################################################
     # Export functionality
-    def export(self, filename):        
+    def export(self, filename):
+        import os.path
         """ Export a pose file for use with Sanguino Library. """
         filepath, shortfilenameStr = os.path.split(filename)
         posefileNameStr = shortfilenameStr + "_Poses.h"
@@ -137,10 +137,10 @@ class project:
         print>>posefile, "#include <CM9_BC.h>"
         print>>posefile, ""
 
-        print>>posefile, "bc_pose_t __FLASH__ " + posefileIDarray + "[] = {" + str(self.count),
+        print>>posefile, "bc_pose_t __FLASH__ " + posefileIDarray + "[] = {" + str(self.count) + ",",
         for itera in range(self.count-1):
-            print>>posefile, "," + str(itera+1),
-        print>>posefile, "};\n"
+            print>>posefile, str(itera+1) + ",",
+        print>>posefile, str(itera+2)+"};\n"
 
         for p in self.poses.keys():
             if p.startswith("ik_"):
@@ -171,26 +171,25 @@ class project:
         print>>seqfile, "#endif"
         seqfile.close()
         
-        '''
-        Add stuff to create a proper RPM_Array using the sequences with 0 as "next" and "stop" indices.
+        #Add stuff to create a proper RPM_Array using the sequences with 0 as "next" and "stop" indices.
         rpmfile = open(filename + "_RPM.h", "w")
         print>>rpmfile, "#ifndef " + self.name.upper() + "_RPM"
         print>>rpmfile, "#define " + self.name.upper() + "_RPM"
         print>>rpmfile, ""
         print>>rpmfile, "#include \"" + seqfileNameStr + "\""
         print>>rpmfile, ""
+        print>>rpmfile, "rpm_page_t " + self.name + "_RoboPlusMotion_Array[] __FLASH__ = {"
+        print>>rpmfile, "	{0,						0,		255}",
+        itera = 0
         for s in self.sequences.keys():
-#            print>>rpmfile, "bc_seq_t __FLASH__ " + s + "[] = {{" +  posefileIDarray + "," + str(len(self.sequences[s])) + "}",
-#            s = self.sequences[s]
-#            for t in s:
-3                print>>rpmfile, ",{" + t[0:t.find("|")] + "," + t[t.find("|")+1:] + "}",            
-#            print>>rpmfile, "};"
+            print>>rpmfile, ",	// " + str(itera) + "\n	{" + s + ",	0, 0}",
+            itera += 1
+        print>>rpmfile, "	// "+ str(itera)
+        print>>rpmfile, "}"
         print>>rpmfile, ""
         print>>rpmfile, "#endif"
         rpmfile.close()
 
-
-        '''
 
 def extract(li):
     """ extract x%256,x>>8 for every x in li """
