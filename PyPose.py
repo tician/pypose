@@ -97,7 +97,7 @@ class editor(wx.Frame):
             id = wx.NewId()
             self.toolIndex[id] = (t, name)
             toolsmenu.Append(id,name)   
-        toolsmenu.Append(self.ID_EXPORT,"export to AVR") # save as dialog
+        toolsmenu.Append(self.ID_EXPORT,"export to sketch") # save as dialog
         menubar.Append(toolsmenu,"tools")
 
         configmenu = wx.Menu()
@@ -237,7 +237,8 @@ class editor(wx.Frame):
             self.sb.SetStatusText('please create a project')
             self.timer.Start(20)
             return
-        dlg = wx.FileDialog(self, "Choose a file", self.dirname,"","*.h",wx.SAVE)
+#        dlg = wx.FileDialog(self, "Choose a file", self.dirname,"","*.h",wx.SAVE)
+        dlg = wx.FileDialog(self, "Choose a file", self.dirname,"","",wx.SAVE)
         if dlg.ShowModal() == wx.ID_OK:
             self.project.export(dlg.GetPath())
             self.sb.SetStatusText("exported " + dlg.GetPath(),0)

@@ -48,7 +48,7 @@ class Driver:
         for val in params:
             self.ser.write(chr(val))
         self.ser.write(chr(checksum))
-        time.sleep(0.1);
+        time.sleep(0.1)
         return self.getPacket(0)
 
     def setReg(self, index, regstart, values):

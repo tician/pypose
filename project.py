@@ -19,6 +19,8 @@
   Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 """
 
+import os
+
 ###############################################################################
 # Pose class is a list, first element is name, rest are servo positions. 
 class pose(list):
@@ -123,13 +125,23 @@ class project:
     # Export functionality
     def export(self, filename):        
         """ Export a pose file for use with Sanguino Library. """
-        posefile = open(filename, "w")
+        filepath, shortfilenameStr = os.path.split(filename)
+        posefileNameStr = shortfilenameStr + "_Poses.h"
+        seqfileNameStr = shortfilenameStr + "_Sequences.h"
+        posefileIDarray = shortfilenameStr + "_id"
+
+        posefile = open(filename + "_Poses.h", "w")
         print>>posefile, "#ifndef " + self.name.upper() + "_POSES"
         print>>posefile, "#define " + self.name.upper() + "_POSES"
         print>>posefile, ""
-        print>>posefile, "//#include <avr/pgmspace.h>"
         print>>posefile, "#include <CM9_BC.h>"
         print>>posefile, ""
+
+        print>>posefile, "bc_pose_t __FLASH__ " + posefileIDarray + "[] = {" + str(self.count),
+        for itera in range(self.count-1):
+            print>>posefile, "," + str(itera+1),
+        print>>posefile, "};\n"
+
         for p in self.poses.keys():
             if p.startswith("ik_"):
                 continue
@@ -140,15 +152,45 @@ class project:
             print>>posefile, str(p[-1]) + "};"
             #print>>posefile, ""
         print>>posefile, ""
-        for s in self.sequences.keys():
-            print>>posefile, "bc_seq_t __FLASH__ " + s + "[] = {{0," + str(len(self.sequences[s])) + "}",
-            s = self.sequences[s]
-            for t in s:
-                print>>posefile, ",{" + t[0:t.find("|")] + "," + t[t.find("|")+1:] + "}",            
-            print>>posefile, "};"
-        print>>posefile, ""
         print>>posefile, "#endif"
         posefile.close()
+
+        seqfile = open(filename + "_Sequences.h", "w")
+        print>>seqfile, "#ifndef " + self.name.upper() + "_SEQUENCES"
+        print>>seqfile, "#define " + self.name.upper() + "_SEQUENCES"
+        print>>seqfile, ""
+        print>>seqfile, "#include \"" + posefileNameStr + "\""
+        print>>seqfile, ""
+        for s in self.sequences.keys():
+            print>>seqfile, "bc_seq_t __FLASH__ " + s + "[] = {{" +  posefileIDarray + "," + str(len(self.sequences[s])) + "}",
+            s = self.sequences[s]
+            for t in s:
+                print>>seqfile, ",{" + t[0:t.find("|")] + "," + t[t.find("|")+1:] + "}",            
+            print>>seqfile, "};"
+        print>>seqfile, ""
+        print>>seqfile, "#endif"
+        seqfile.close()
+        
+        '''
+        Add stuff to create a proper RPM_Array using the sequences with 0 as "next" and "stop" indices.
+        rpmfile = open(filename + "_RPM.h", "w")
+        print>>rpmfile, "#ifndef " + self.name.upper() + "_RPM"
+        print>>rpmfile, "#define " + self.name.upper() + "_RPM"
+        print>>rpmfile, ""
+        print>>rpmfile, "#include \"" + seqfileNameStr + "\""
+        print>>rpmfile, ""
+        for s in self.sequences.keys():
+#            print>>rpmfile, "bc_seq_t __FLASH__ " + s + "[] = {{" +  posefileIDarray + "," + str(len(self.sequences[s])) + "}",
+#            s = self.sequences[s]
+#            for t in s:
+3                print>>rpmfile, ",{" + t[0:t.find("|")] + "," + t[t.find("|")+1:] + "}",            
+#            print>>rpmfile, "};"
+        print>>rpmfile, ""
+        print>>rpmfile, "#endif"
+        rpmfile.close()
+
+
+        '''
 
 def extract(li):
     """ extract x%256,x>>8 for every x in li """
