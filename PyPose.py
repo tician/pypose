@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-""" 
+"""
   PyPose: Bioloid pose system for arbotiX robocontroller
   Copyright (c) 2008-2010 Michael E. Ferguson.  All right reserved.
 
@@ -56,7 +56,7 @@ class editor(wx.Frame):
 
     def __init__(self):
         """ Creates pose editor window. """
-        wx.Frame.__init__(self, None, -1, VERSION, style = wx.DEFAULT_FRAME_STYLE & ~ (wx.RESIZE_BORDER | wx.MAXIMIZE_BOX))
+        wx.Frame.__init__(self, None, -1, VERSION, style = wx.DEFAULT_FRAME_STYLE)
 
         # key data for our program
         self.project = project() # holds data for our project
@@ -72,37 +72,44 @@ class editor(wx.Frame):
         # for clearing red color on status bar
         self.timer = wx.Timer(self, self.ID_TIMER)
         self.timeout = 0
-        
-        # build our menu bar  
+
+        # build our menu bar
         menubar = wx.MenuBar()
         prjmenu = wx.Menu()
-        prjmenu.Append(self.ID_NEW, "new") # dialog with name, # of servos
-        prjmenu.Append(self.ID_OPEN, "open") # open file dialog
-        prjmenu.Append(self.ID_SAVE,"save") # if name unknown, ask, otherwise save
-        prjmenu.Append(self.ID_SAVE_AS,"save as") # ask for name, save
+        prjmenu.Append(self.ID_NEW, "&New\tCtrl+N", "", wx.ITEM_NORMAL) # dialog with name, # of servos
+        prjmenu.Append(self.ID_OPEN, "&Open\tCtrl+O", "", wx.ITEM_NORMAL) # open file dialog
         prjmenu.AppendSeparator()
-        prjmenu.Append(self.ID_EXIT,"exit") 
-        menubar.Append(prjmenu, "project")
+        prjmenu.Append(self.ID_SAVE,"&Save\tCtrl+S", "", wx.ITEM_NORMAL) # if name unknown, ask, otherwise save
+        prjmenu.Append(self.ID_SAVE_AS,"Save As") # ask for name, save
+        prjmenu.AppendSeparator()
+        prjmenu.Append(self.ID_EXIT, "&Quit\tCtrl+Q", "", wx.ITEM_NORMAL)
+        menubar.Append(prjmenu, "Project")
 
         toolsmenu = wx.Menu()
         # find our tools
         toolFiles = list()
         for file in os.listdir("tools"):
             if file[-3:] == '.py' and file != "__init__.py" and file != "ToolPane.py":
-                toolFiles.append(file[0:-3])       
+                toolFiles.append(file[0:-3])
         # load tool names, give them IDs
         for t in toolFiles:
-            module = __import__(t, globals(), locals(), ["NAME"])    
+            module = __import__(t, globals(), locals(), ["NAME"])
             name = getattr(module, "NAME")
             id = wx.NewId()
             self.toolIndex[id] = (t, name)
+<<<<<<< HEAD
             toolsmenu.Append(id,name)   
         toolsmenu.Append(self.ID_EXPORT,"export to sketch") # save as dialog
         menubar.Append(toolsmenu,"tools")
+=======
+            toolsmenu.Append(id,name)
+        toolsmenu.Append(self.ID_EXPORT,"export to AVR") # save as dialog
+        menubar.Append(toolsmenu,"Tools")
+>>>>>>> 4739f560bc18882bd9b2f250780628d80511d293
 
         configmenu = wx.Menu()
         configmenu.Append(self.ID_PORT,"port") # dialog box: arbotix/thru, speed, port
-        columnmenu = wx.Menu()        
+        columnmenu = wx.Menu()
         columnmenu.Append(self.ID_2COL,"2 columns")
         columnmenu.Append(self.ID_3COL,"3 columns")
         columnmenu.Append(self.ID_4COL,"4 columns")
@@ -110,13 +117,13 @@ class editor(wx.Frame):
         # live update
         self.live = configmenu.Append(self.ID_LIVE_UPDATE,"live pose update",kind=wx.ITEM_CHECK)
         #configmenu.Append(self.ID_TEST,"test") # for in-house testing of boards
-        menubar.Append(configmenu, "config")    
+        menubar.Append(configmenu, "Configuration")
 
         helpmenu = wx.Menu()
-        helpmenu.Append(self.ID_ABOUT,"about")
-        menubar.Append(helpmenu,"help")
+        helpmenu.Append(self.ID_ABOUT,"About")
+        menubar.Append(helpmenu,"Help")
 
-        self.SetMenuBar(menubar)    
+        self.SetMenuBar(menubar)
 
         # configure events
         wx.EVT_MENU(self, self.ID_NEW, self.newFile)
@@ -124,12 +131,12 @@ class editor(wx.Frame):
         wx.EVT_MENU(self, self.ID_SAVE, self.saveFile)
         wx.EVT_MENU(self, self.ID_SAVE_AS, self.saveFileAs)
         wx.EVT_MENU(self, self.ID_EXIT, sys.exit)
-    
+
         for t in self.toolIndex.keys():
             wx.EVT_MENU(self, t, self.loadTool)
-        wx.EVT_MENU(self, self.ID_EXPORT, self.export)     
+        wx.EVT_MENU(self, self.ID_EXPORT, self.export)
 
-        wx.EVT_MENU(self, self.ID_RELAX, self.doRelax)   
+        wx.EVT_MENU(self, self.ID_RELAX, self.doRelax)
         wx.EVT_MENU(self, self.ID_PORT, self.doPort)
         wx.EVT_MENU(self, self.ID_TEST, self.doTest)
         wx.EVT_MENU(self, self.ID_ABOUT, self.doAbout)
@@ -141,7 +148,7 @@ class editor(wx.Frame):
         wx.EVT_MENU(self, self.ID_3COL, self.do3Col)
         wx.EVT_MENU(self, self.ID_4COL, self.do4Col)
 
-        # editor area       
+        # editor area
         self.sb = self.CreateStatusBar(2)
         self.sb.SetStatusWidths([-1,150])
         self.sb.SetStatusText('not connected',1)
@@ -156,12 +163,12 @@ class editor(wx.Frame):
         self.Show(True)
 
     ###########################################################################
-    # toolpane handling   
+    # toolpane handling
     def loadTool(self, e=None):
         if e == None:
             t = "PoseEditor"
         else:
-            t = self.toolIndex[e.GetId()][0]  # get name of file for this tool  
+            t = self.toolIndex[e.GetId()][0]  # get name of file for this tool
             if self.tool == t:
                 return
         if self.panel != None:
@@ -183,13 +190,13 @@ class editor(wx.Frame):
         self.panel.SetFocus()
 
     ###########################################################################
-    # file handling                
-    def newFile(self, e):  
-        """ Open a dialog that asks for robot name and servo count. """ 
+    # file handling
+    def newFile(self, e):
+        """ Open a dialog that asks for robot name and servo count. """
         dlg = NewProjectDialog(self, -1, "Create New Project")
         if dlg.ShowModal() == wx.ID_OK:
             self.project.new(dlg.name.GetValue(), dlg.count.GetValue(), int(dlg.resolution.GetValue()))
-            self.loadTool()      
+            self.loadTool()
             self.sb.SetStatusText('created new project ' + self.project.name + ', please create a pose...')
             self.SetTitle(VERSION+" - " + self.project.name)
             self.panel.saveReq = True
@@ -197,13 +204,13 @@ class editor(wx.Frame):
         dlg.Destroy()
 
     def openFile(self, e):
-        """ Loads a robot file into the GUI. """ 
+        """ Loads a robot file into the GUI. """
         dlg = wx.FileDialog(self, "Choose a file", self.dirname, "", "*.ppr", wx.OPEN)
         if dlg.ShowModal() == wx.ID_OK:
             self.filename = dlg.GetPath()
             self.dirname = dlg.GetDirectory()
-            print "Opening: " + self.filename            
-            self.project.load(self.filename)  
+            print("Opening: " + self.filename)
+            self.project.load(self.filename)
             self.SetTitle(VERSION+" - " + self.project.name)
             dlg.Destroy()
             self.loadTool()
@@ -211,14 +218,14 @@ class editor(wx.Frame):
 
     def saveFile(self, e=None):
         """ Save a robot file from the GUI. """
-        if self.filename == "": 
+        if self.filename == "":
             dlg = wx.FileDialog(self, "Choose a file", self.dirname,"","*.ppr",wx.SAVE)
             if dlg.ShowModal() == wx.ID_OK:
                 self.filename = dlg.GetPath()
                 self.dirname = dlg.GetDirectory()
                 dlg.Destroy()
             else:
-                return  
+                return
         if self.filename[-4:] != ".ppr":
             self.filename = self.filename + ".ppr"
         self.project.saveFile(self.filename)
@@ -226,11 +233,11 @@ class editor(wx.Frame):
 
     def saveFileAs(self, e):
         self.filename = ""
-        self.saveFile()                
+        self.saveFile()
 
     ###########################################################################
     # Export functionality
-    def export(self, e):        
+    def export(self, e):
         """ Export a pose file for use with Sanguino Library. """
         if self.project.name == "":
             self.sb.SetBackgroundColour('RED')
@@ -242,7 +249,7 @@ class editor(wx.Frame):
         if dlg.ShowModal() == wx.ID_OK:
             self.project.export(dlg.GetPath())
             self.sb.SetStatusText("exported " + dlg.GetPath(),0)
-            dlg.Destroy()        
+            dlg.Destroy()
 
     ###########################################################################
     # Port Manipulation
@@ -259,7 +266,7 @@ class editor(wx.Frame):
                 pass
         if len(self.ports) > 0:
             return self.ports
-        # mac specific next:        
+        # mac specific next:
         try:
             for port in os.listdir("/dev/"):
                 if port.startswith("tty.usbserial"):
@@ -285,10 +292,10 @@ class editor(wx.Frame):
         if dlg.ShowModal() == wx.ID_OK:
             if self.port != None:
                 self.port.ser.close()
-            print "Opening port: " + self.ports[dlg.GetSelection()]
+            print("Opening port: " + self.ports[dlg.GetSelection()])
             self.openPort(self.ports[dlg.GetSelection()])
             dlg.Destroy()
-    def openPort(self, port, baud=38400, interpolate=True):
+    def openPort(self, port, baud=115200, interpolate=True):
         try:
             # TODO: add ability to select type of driver
             self.port = Driver(port, baud, interpolate)
@@ -302,7 +309,7 @@ class editor(wx.Frame):
             self.sb.SetStatusText('not connected',1)
             self.timer.Start(20)
         return self.port
-        
+
     def doTest(self, e=None):
         if self.port != None:
             self.port.execute(253, 25, list())
@@ -310,12 +317,12 @@ class editor(wx.Frame):
     def doRelax(self, e=None):
         """ Relax servos so you can pose them. """
         if self.port != None:
-            print "PyPose: relaxing servos..."      
+            print("PyPose: relaxing servos...")
             for servo in range(self.project.count):
-                self.port.setReg(servo+1,P_TORQUE_ENABLE, [0,])    
+                self.port.setReg(servo+1,P_TORQUE_ENABLE, [0,])
         else:
             self.sb.SetBackgroundColour('RED')
-            self.sb.SetStatusText("No Port Open",0) 
+            self.sb.SetStatusText("No Port Open",0)
             self.timer.Start(20)
 
     def doAbout(self, e=None):
@@ -346,7 +353,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA)
         if self.project.save == True:
             dlg = wx.MessageDialog(None, 'Save changes before closing?', '',
             wx.YES_NO | wx.CANCEL | wx.ICON_QUESTION)
-            r = dlg.ShowModal()            
+            r = dlg.ShowModal()
             if r == wx.ID_CANCEL:
                 e.Veto()
                 return
@@ -354,7 +361,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA)
                 self.saveFile()
                 pass
         self.Destroy()
-            
+
     def OnTimer(self, e=None):
         self.timeout = self.timeout + 1
         if self.timeout > 50:
@@ -381,19 +388,19 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA)
     def setLiveUpdate(self, e=None):
         if self.tool == "PoseEditor":
             self.panel.live = self.live.IsChecked()
-        
+
 ###############################################################################
 # New Project Dialog
 class NewProjectDialog(wx.Dialog):
     def __init__(self, parent, id, title):
-        wx.Dialog.__init__(self, parent, id, title, size=(310, 180))  
+        wx.Dialog.__init__(self, parent, id, title, size=(310, 180))
 
         panel = wx.Panel(self, -1)
         vbox = wx.BoxSizer(wx.VERTICAL)
 
         wx.StaticBox(panel, -1, 'Project Parameters', (5, 5), (300, 120))
         wx.StaticText(panel, -1, 'Name:', (15,30))
-        self.name = wx.TextCtrl(panel, -1, '', (105,25)) 
+        self.name = wx.TextCtrl(panel, -1, '', (105,25))
         wx.StaticText(panel, -1, '# of Servos:', (15,55))
         self.count = wx.SpinCtrl(panel, -1, '18', (105, 50), min=1, max=30)
         wx.StaticText(panel, -1, 'Resolution:', (15,80))
@@ -412,7 +419,7 @@ class NewProjectDialog(wx.Dialog):
 
 
 if __name__ == "__main__":
-    print "PyPose starting... "
+    print("PyPose starting... ")
     app = wx.App()
     frame = editor()
     app.MainLoop()

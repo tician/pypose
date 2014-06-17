@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-""" 
+"""
   PyPose: for all things related to PyPose projects
   Copyright (c) 2008-2010 Michael E. Ferguson.  All right reserved.
 
@@ -21,29 +21,29 @@
 
 
 ###############################################################################
-# Pose class is a list, first element is name, rest are servo positions. 
+# Pose class is a list, first element is name, rest are servo positions.
 class pose(list):
     """ A class to hold a pose. """
     def __init__(self, line, length):
         # now load the name, positions for this pose
         try:
-            for servo in range(length): 
+            for servo in range(length):
                 if line.find(",") > 0:
-                    self.append(int(line[0:line.index(",")]))       
+                    self.append(int(line[0:line.index(",")]))
                 else:
                     self.append(int(line[0:]))
-                line = line[line.index(",")+1:] 
+                line = line[line.index(",")+1:]
         # we may not have enough data, so dump it
         except:
             for i in range(length-len(self)):
                 self.append(512)
 
     def __str__(self):
-        return ", ".join([str(p) for p in self])        
+        return ", ".join([str(p) for p in self])
 
 
 ###############################################################################
-# Sequence class is a list, first element is name, rest are (pose,time) pairs 
+# Sequence class is a list, first element is name, rest are (pose,time) pairs
 class sequence(list):
     """ A class to hold a sequence. """
     def __init__(self, line=None):
@@ -53,15 +53,15 @@ class sequence(list):
                 return
             while True:
                 if line.find(",") > 0:
-                    self.append(line[0:line.index(",")].strip().rstrip()) 
+                    self.append(line[0:line.index(",")].strip().rstrip())
                 elif line != "":
-                    self.append(line.strip().rstrip()) 
-                line = line[line.index(",")+1:] 
+                    self.append(line.strip().rstrip())
+                line = line[line.index(",")+1:]
         except:
             pass
 
     def __str__(self):
-        return ", ".join([str(t) for t in self])     
+        return ", ".join([str(t) for t in self])
 
 
 ###############################################################################
@@ -73,13 +73,13 @@ class project:
         self.resolution = [1024 for i in range(self.count)]
         self.poses = dict()
         self.sequences = dict()
-        self.nuke = ""    
+        self.nuke = ""
         self.save = False
 
     def load(self, filename):
-        self.poses = dict()     
+        self.poses = dict()
         self.sequences = dict()
-        prjFile = open(filename, "r").readlines()    
+        prjFile = open(filename, "r").readlines()
         # load robot name and servo count
         self.name = prjFile[0].split(":")[0]
         self.count = int(prjFile[0].split(":")[1])
@@ -88,22 +88,22 @@ class project:
         if len(self.resolution) != self.count:
             self.resolution = [1024 for x in range(self.count)]
         # load poses and sequences
-        for line in prjFile[1:]:  
+        for line in prjFile[1:]:
             if line[0:5] == "Pose=":
                 self.poses[line[5:line.index(":")]] = pose(line[line.index(":")+1:].rstrip(),self.count)
             elif line[0:4] == "Seq=":
-                self.sequences[line[4:line.index(":")]] = (sequence(line[line.index(":")+1:].rstrip())) 
+                self.sequences[line[4:line.index(":")]] = (sequence(line[line.index(":")+1:].rstrip()))
             elif line[0:5] == "Nuke=":
-                self.nuke = line[5:].rstrip()   
-            # these next two lines can be removed later, once everyone is moved to Ver 0.91         
+                self.nuke = line[5:].rstrip()
+            # these next two lines can be removed later, once everyone is moved to Ver 0.91
             else:
-                self.poses[line[0:line.index(":")]] = pose(line[line.index(":")+1:].rstrip(),self.count)   
+                self.poses[line[0:line.index(":")]] = pose(line[line.index(":")+1:].rstrip(),self.count)
         self.save = False
 
     def saveFile(self, filename):
         prjFile = open(filename, "w")
         print>>prjFile, self.name + ":" + str(self.count) + ":" + ":".join([str(x) for x in self.resolution])
-        for p in self.poses.keys():            
+        for p in self.poses.keys():
             print>>prjFile, "Pose=" + p + ":" + str(self.poses[p])
         for s in self.sequences.keys():
             print>>prjFile, "Seq=" + s + ": " + str(self.sequences[s])
@@ -123,7 +123,10 @@ class project:
     ###########################################################################
     # Export functionality
     def export(self, filename):
+<<<<<<< HEAD
         import os.path
+=======
+>>>>>>> 4739f560bc18882bd9b2f250780628d80511d293
         """ Export a pose file for use with Sanguino Library. """
         filepath, shortfilenameStr = os.path.split(filename)
         posefileNameStr = shortfilenameStr + "_Poses.h"
@@ -165,6 +168,7 @@ class project:
             print>>seqfile, "bc_seq_t __FLASH__ " + s + "[] = {{" +  posefileIDarray + "," + str(len(self.sequences[s])) + "}",
             s = self.sequences[s]
             for t in s:
+<<<<<<< HEAD
                 print>>seqfile, ",{" + t[0:t.find("|")] + "," + t[t.find("|")+1:] + "}",            
             print>>seqfile, "};"
         print>>seqfile, ""
@@ -190,6 +194,13 @@ class project:
         print>>rpmfile, "#endif"
         rpmfile.close()
 
+=======
+                print>>posefile, ",{" + t[0:t.find("|")] + "," + t[t.find("|")+1:] + "}",
+            print>>posefile, "};"
+        print>>posefile, ""
+        print>>posefile, "#endif"
+        posefile.close()
+>>>>>>> 4739f560bc18882bd9b2f250780628d80511d293
 
 def extract(li):
     """ extract x%256,x>>8 for every x in li """

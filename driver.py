@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-""" 
+"""
   PyPose: Serial driver for connection to arbotiX board or USBDynamixel.
   Copyright (c) 2008,2009 Michael E. Ferguson.  All right reserved.
 
@@ -26,7 +26,7 @@ from binascii import b2a_hex
 from ax12 import *
 
 class Driver:
-    """ Class to open a serial port and control AX-12 servos 
+    """ Class to open a serial port and control AX-12 servos
     through an arbotiX board or USBDynamixel. """
     def __init__(self, port="/dev/ttyUSB0",baud=38400, interpolation=False, direct=False):
         """ This may throw errors up the line -- that's a good thing. """
@@ -53,63 +53,68 @@ class Driver:
 
     def setReg(self, index, regstart, values):
         """ Set the value of registers. Should be called as such:
-        ax12.setReg(1,1,(0x01,0x05)) """ 
+        ax12.setReg(1,1,(0x01,0x05)) """
         self.execute(index, AX_WRITE_DATA, [regstart] + values)
-        return self.error     
+        return self.error
 
     def getPacket(self, mode, id=-1, leng=-1, error=-1, params = None):
         """ Read a return packet, iterative attempt """
         # need a positive byte
         d = self.ser.read()
+<<<<<<< HEAD
         if d == '': 
             print "*** Fail Read ***"
+=======
+        if d == '':
+            print("Fail Read")
+>>>>>>> 4739f560bc18882bd9b2f250780628d80511d293
             return None
 
         # now process our byte
         if mode == 0:           # get our first 0xFF
-            if ord(d) == 0xff:   
-                print "Oxff found"
+            if ord(d) == 0xff:
+                print("Oxff found")
                 return self.getPacket(1)
             else:
-                print "Oxff NOT found, restart: " + str(ord(d))
+                print("Oxff NOT found, restart: " + str(ord(d)))
                 return self.getPacket(0)
         elif mode == 1:         # get our second 0xFF
             if ord(d) == 0xff:
-                print "Oxff found"
+                print("Oxff found")
                 return self.getPacket(2)
             else:
-                print "Oxff NOT found, restart: " + str(ord(d))
+                print("Oxff NOT found, restart: " + str(ord(d)))
                 return self.getPacket(0)
         elif mode == 2:         # get id
             if d != 0xff:
-                print "ID found: " + str(ord(d))
+                print("ID found: " + str(ord(d)))
                 return self.getPacket(3, ord(d))
-            else:              
-                print "0xff is not ID, restart"
+            else:
+                print("0xff is not ID, restart")
                 return self.getPacket(0)
         elif mode == 3:         # get length
-            print "Length found: " + str(ord(d))
+            print("Length found: " + str(ord(d)))
             return self.getPacket(4, id, ord(d))
-        elif mode == 4:         # read error    
-            print "Error level found: " + str(ord(d))
+        elif mode == 4:         # read error
+            print("Error level found: " + str(ord(d)))
             self.error = ord(d)
             if leng == 2:
                 return self.getPacket(6, id, leng, ord(d), list())
             else:
                 return self.getPacket(5, id, leng, ord(d), list())
         elif mode == 5:         # read params
-            print "Parameter found: " + str(ord(d))
+            print("Parameter found: " + str(ord(d)))
             params.append(ord(d))
             if len(params) + 2 == leng:
                 return self.getPacket(6, id, leng, error, params)
             else:
                 return self.getPacket(5, id, leng, error, params)
         elif mode == 6:         # read checksum
-            print "Checksum found: " + str(ord(d))
+            print("Checksum found: " + str(ord(d)))
             checksum = id + leng + error + sum(params) + ord(d)
-            print "Checksum computed: " + str(checksum)
+            print("Checksum computed: " + str(checksum))
             if checksum % 256 != 255:
-                print "Checksum ERROR"
+                print("Checksum ERROR")
                 return None
             return params
         # fail
@@ -120,20 +125,20 @@ class Driver:
         ax12.getReg(1,1,1) """
         vals = self.execute(index, AX_READ_DATA, [regstart, rlength])
         if vals == None:
-            print "Read Failed: Servo ID = " + str(index)
-            return -1        
+            print("Read Failed: Servo ID = " + str(index))
+            return -1
         if rlength == 1:
             return vals[0]
         return vals
 
     def syncWrite(self, regstart, vals):
         """ Set the value of registers. Should be called as such:
-        ax12.syncWrite(reg, ((id1, val1, val2), (id2, val1, val2))) """ 
+        ax12.syncWrite(reg, ((id1, val1, val2), (id2, val1, val2))) """
         self.ser.flushInput()
         length = 4
         valsum = 0
         for i in vals:
-            length = length + len(i)    
+            length = length + len(i)
             valsum = valsum + sum(i)
         checksum = 255 - ((254 + length + AX_SYNC_WRITE + regstart + len(vals[0]) - 1 + valsum)%256)
         # packet: FF FF ID LENGTH INS(0x03) PARAM .. CHECKSUM
