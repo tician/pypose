@@ -123,11 +123,8 @@ class project:
     ###########################################################################
     # Export functionality
     def export(self, filename):
-<<<<<<< HEAD
         import os.path
-=======
->>>>>>> 4739f560bc18882bd9b2f250780628d80511d293
-        """ Export a pose file for use with Sanguino Library. """
+        """ Export a pose file for use with OpenCM BioloidController Library. """
         filepath, shortfilenameStr = os.path.split(filename)
         posefileNameStr = shortfilenameStr + "_Poses.h"
         seqfileNameStr = shortfilenameStr + "_Sequences.h"
@@ -168,7 +165,6 @@ class project:
             print>>seqfile, "bc_seq_t __FLASH__ " + s + "[] = {{" +  posefileIDarray + "," + str(len(self.sequences[s])) + "}",
             s = self.sequences[s]
             for t in s:
-<<<<<<< HEAD
                 print>>seqfile, ",{" + t[0:t.find("|")] + "," + t[t.find("|")+1:] + "}",            
             print>>seqfile, "};"
         print>>seqfile, ""
@@ -194,13 +190,6 @@ class project:
         print>>rpmfile, "#endif"
         rpmfile.close()
 
-=======
-                print>>posefile, ",{" + t[0:t.find("|")] + "," + t[t.find("|")+1:] + "}",
-            print>>posefile, "};"
-        print>>posefile, ""
-        print>>posefile, "#endif"
-        posefile.close()
->>>>>>> 4739f560bc18882bd9b2f250780628d80511d293
 
 def extract(li):
     """ extract x%256,x>>8 for every x in li """

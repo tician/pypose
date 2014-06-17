@@ -97,15 +97,9 @@ class editor(wx.Frame):
             name = getattr(module, "NAME")
             id = wx.NewId()
             self.toolIndex[id] = (t, name)
-<<<<<<< HEAD
             toolsmenu.Append(id,name)   
         toolsmenu.Append(self.ID_EXPORT,"export to sketch") # save as dialog
         menubar.Append(toolsmenu,"tools")
-=======
-            toolsmenu.Append(id,name)
-        toolsmenu.Append(self.ID_EXPORT,"export to AVR") # save as dialog
-        menubar.Append(toolsmenu,"Tools")
->>>>>>> 4739f560bc18882bd9b2f250780628d80511d293
 
         configmenu = wx.Menu()
         configmenu.Append(self.ID_PORT,"port") # dialog box: arbotix/thru, speed, port

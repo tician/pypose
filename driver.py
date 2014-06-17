@@ -61,13 +61,8 @@ class Driver:
         """ Read a return packet, iterative attempt """
         # need a positive byte
         d = self.ser.read()
-<<<<<<< HEAD
-        if d == '': 
-            print "*** Fail Read ***"
-=======
         if d == '':
             print("Fail Read")
->>>>>>> 4739f560bc18882bd9b2f250780628d80511d293
             return None
 
         # now process our byte
