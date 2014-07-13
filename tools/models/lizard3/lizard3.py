@@ -191,8 +191,8 @@ class lizard3(dict):
             ans[2] = radToServo(acos(d1/float(d2))-1.57, resolution)
         except:
             if self.debug:
-                "LegIK FAILED"
-            return [1024,1024,1024,0]
+                print "LegIK FAILED"
+            return [resolution,resolution,resolution,0]
 
         if self.debug:
             print "LegIK:",ans
